@@ -1,0 +1,175 @@
+{% extends 'base.html' %}
+{% include 'header.html' %}
+
+{% block body %}
+
+<main role="main">
+
+  <div class="graph-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+    <h1 class="display-4">All our Holiday Weather</h1>
+    <p class="lead">This is place where we can see the weather wherever we have been.</p>
+    <canvas id="myChart" width="1600" height="400"></canvas>
+  </div>
+
+
+
+  <div class="album py-5 bg-light">
+    <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                {% set message_class = 'success' %}
+
+                {% if category == 'error' %}
+                    {% set message_class = 'danger' %}
+                {% endif %}
+                <div class="alert alert-{{ message_class }}" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="close">
+                        <span aria-hidden="true">x</span>
+                    </button>
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+        {% endwith %}
+      <div class="row">
+        {% for item in weathers %}
+        <div class="col-md-4">
+          <div class="card mb-4 box-shadow">
+            <h5 class="card-header">{{ item.city }}</h5>
+            <div class="card-body text-center">
+                <i class="wi {{ item.wi }} fa-4x"></i>
+                <h5 class="card-title">{{ item.temperature }} °C</h5>
+                <p class="card-text">{{ item.summary }}</p>
+                <div class="d-flex justify-content-between align-items-center">
+                <div class="btn-group">
+                    <a href="/update/{{item.id}}" class="btn btn-sm btn-outline-primary" data-toggle="modal" data-target="#modaledit{{item.id}}">Edit</a>
+                    <a href="{{ url_for('delete_city', name=item.city) }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are You Sure To Delete ?')">Delete</a>
+                </div>
+                <small class="text-muted">9 mins</small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="modaledit{{item.id}}" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+               <div class="modal-content">
+                  <div class="modal-header">
+                     <h4 class="modal-title">Update Information</h4>
+                  </div>
+                  <div class="modal-body">
+                     <form action="{{url_for('update')}}" method="POST">
+                        <div class="form-group">
+                           <label>Place :</label>
+                            <input type="hidden"  name="id" value="{{item.id}}">
+                           <input type="text" class="form-control" name="city" value="{{item.city}}">
+                        </div>
+                        <div class="form-group">
+                           <label>Longitude :</label>
+                           <input type="text" class="form-control" name="longitude" value="{{item.longitude}}">
+                        </div>
+                        <div class="form-group">
+                           <label>Latitude :</label>
+                           <input type="text" class="form-control" name="latitude" value="{{item.latitude}}">
+                        </div>
+                        <div class="form-group">
+                           <button class="btn btn-primary" type="submit">Update</button>
+                        </div>
+                     </form>
+                  </div>
+                  <div class="modal-footer">
+                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                  </div>  
+               </div>       
+            </div>        
+         </div>  
+
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+</main>
+  
+<script>
+    // Global parameters:
+    // do not resize the chart canvas when its container does (keep at 600x400px)
+    Chart.defaults.global.responsive = false;
+    Chart.defaults.global.legend.display = false;
+     
+    // get chart canvas
+          var ctx = document.getElementById("myChart").getContext("2d");
+          var gradientStrokeFill_1 = ctx.createLinearGradient(0, 100, 200, 0);
+          gradientStrokeFill_1.addColorStop(0, '#fa5539');
+          gradientStrokeFill_1.addColorStop(1, '#fa3252');
+          var areaData = {
+            labels: [{% for item in weathers_graph %}
+                 "{{item.city}}",
+                {% endfor %}],
+            datasets: [{
+              label: 'Sessions',
+              data:  [{% for item in weathers_graph %}
+                    {{item.temperature}},
+                  {% endfor %}],
+              backgroundColor: gradientStrokeFill_1,
+              borderColor: '#fa394e',
+              borderWidth: 0,
+              pointBackgroundColor: "#fa394e",
+              pointRadius: 7,
+              pointBorderWidth: 3,
+              pointBorderColor: '#fff',
+              pointHoverRadius: 7,
+              pointHoverBackgroundColor: "#fa394e",
+              pointHoverBorderColor: "#fa394e",
+              pointHoverBorderWidth: 2,
+              pointHitRadius: 7,
+            }]
+          };
+          var areaOptions = {
+            responsive: true,
+            animation: {
+              animateScale: true,
+              animateRotate: true
+            },
+            elements: {
+              point: {
+                radius: 0
+              }
+            },
+            layout: {
+              padding: {
+                left: -10,
+                right: 0,
+                top: 0,
+                bottom: -10
+              }
+            },
+            legend: false,
+            scales: {
+              xAxes: [{
+                gridLines: {
+                  display: false
+                },
+                ticks: {
+                  display: true
+                }
+              }],
+              yAxes: [{
+                gridLines: {
+                  display: false
+                },
+                ticks: {
+                  display: true
+                }
+              }]
+            }
+          }
+          var revenueChart = new Chart(ctx, {
+            type: 'line',
+            data: areaData,
+            options: areaOptions
+          });
+</script>
+{% include 'footer.html' %}
+{% endblock %}

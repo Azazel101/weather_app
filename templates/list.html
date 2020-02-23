@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% include 'header.html' %}
+
+{% block body %}
+
+  <div class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            {% set message_class = 'success' %}
+
+            {% if category == 'error' %}
+                {% set message_class = 'danger' %}
+            {% endif %}
+            <div class="alert alert-{{ message_class }}" role="alert">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+    {% endwith %}
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">Name</th>
+          <th scope="col">Latitude</th>
+          <th scope="col">Longitude</th>
+          <th scope="col">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in weathers %}
+        <tr>
+          <th scope="row">{{ item.id }}</th>
+          <td>{{ item.name }}</td>
+          <td>{{ item.latitude }}</td>
+          <td>{{ item.longitude }}</td>
+          <td>
+            <div class="btn-group">
+              <a href="/update/{{item.id}}" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#modaledit{{item.id}}">Edit</a>
+              <a href="{{ url_for('delete_city', name=item.city) }}" class="btn btn-sm btn-danger" onclick="return confirm('Are You Sure To Delete ?')">Delete</a>
+          </div>
+          </td>
+        </tr>
+
+        <div id="modaledit{{item.id}}" class="modal fade" role="dialog">
+          <div class="modal-dialog">
+             <div class="modal-content">
+                <div class="modal-header">
+                   <h4 class="modal-title">Update Information</h4>
+                </div>
+                <div class="modal-body">
+                   <form action="{{url_for('update')}}" method="POST">
+                      <div class="form-group">
+                         <label>Place :</label>
+                          <input type="hidden"  name="id" value="{{item.id}}">
+                         <input type="text" class="form-control" name="city" value="{{item.name}}">
+                      </div>
+                      <div class="form-group">
+                         <label>Longitude :</label>
+                         <input type="text" class="form-control" name="longitude" value="{{item.longitude}}">
+                      </div>
+                      <div class="form-group">
+                         <label>Latitude :</label>
+                         <input type="text" class="form-control" name="latitude" value="{{item.latitude}}">
+                      </div>
+                      <div class="form-group">
+                         <button class="btn btn-primary" type="submit">Update</button>
+                      </div>
+                   </form>
+                </div>
+                <div class="modal-footer">
+                   <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>  
+             </div>       
+          </div>        
+       </div>  
+
+        {% endfor %}
+      </tbody>
+    </table>
+</div>
+
+{% include 'footer.html' %}
+
+{% endblock %}

@@ -1,0 +1,96 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>Chart.js Example</title>
+    <!-- import plugin script -->
+    <script src="{{ url_for('static',filename='css/Chart.bundle.min.js') }}"></script>
+
+</head>
+
+<body>
+<!-- bar chart canvas element -->
+<canvas id="myChart" width="600" height="400"></canvas>
+<script>
+// Global parameters:
+// do not resize the chart canvas when its container does (keep at 600x400px)
+Chart.defaults.global.responsive = false;
+Chart.defaults.global.legend.display = false;
+ 
+// get chart canvas
+      var ctx = document.getElementById("myChart").getContext("2d");
+      var gradientStrokeFill_1 = ctx.createLinearGradient(0, 100, 200, 0);
+      gradientStrokeFill_1.addColorStop(0, '#fa5539');
+      gradientStrokeFill_1.addColorStop(1, '#fa3252');
+      var areaData = {
+        labels: [{% for item in weathers %}
+             "{{item.city}}",
+            {% endfor %}],
+        datasets: [{
+          label: 'Sessions',
+          data:  [{% for item in weathers %}
+                {{item.temperature}},
+              {% endfor %}],
+          backgroundColor: gradientStrokeFill_1,
+          borderColor: '#fa394e',
+          borderWidth: 0,
+          pointBackgroundColor: "#fa394e",
+          pointRadius: 7,
+          pointBorderWidth: 3,
+          pointBorderColor: '#fff',
+          pointHoverRadius: 7,
+          pointHoverBackgroundColor: "#fa394e",
+          pointHoverBorderColor: "#fa394e",
+          pointHoverBorderWidth: 2,
+          pointHitRadius: 7,
+        }]
+      };
+      var areaOptions = {
+        responsive: true,
+        animation: {
+          animateScale: true,
+          animateRotate: true
+        },
+        elements: {
+          point: {
+            radius: 0
+          }
+        },
+        layout: {
+          padding: {
+            left: -10,
+            right: 0,
+            top: 0,
+            bottom: -10
+          }
+        },
+        legend: false,
+        scales: {
+          xAxes: [{
+            gridLines: {
+              display: false
+            },
+            ticks: {
+              display: false
+            }
+          }],
+          yAxes: [{
+            gridLines: {
+              display: false
+            },
+            ticks: {
+              display: false
+            }
+          }]
+        }
+      }
+      var revenueChart = new Chart(ctx, {
+        type: 'line',
+        data: areaData,
+        options: areaOptions
+      });
+    </script>
+</body>
+
+</html>
